@@ -1,23 +1,24 @@
 package com.druidwood;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static java.lang.System.*;
 
 public class BinaryTree<T extends Comparable<T>> {
     private Node<T> root;
 
-    public BinaryTree(T payload) {
-        this.root = new Node<>(payload, null, null);
-    }
-
     public static class Node<T> {
         T payload;
         Node<T> left;
         Node<T> right;
+        Node<T> parent;
 
-        public Node(T payload, Node<T> left, Node<T> right) {
+        public Node(T payload, Node<T> left, Node<T> right, Node<T> parent) {
             this.payload = payload;
             this.left = left;
             this.right = right;
+            this.parent = parent;
         }
     }
 
@@ -27,40 +28,63 @@ public class BinaryTree<T extends Comparable<T>> {
      * @param payload
      * @return Added node
      */
-    public Node<T> insert(T payload) {
-        // Start at the root node
-        Node<T> current = this.root;
-        int depth = 2;
-        while (true) {
+    protected Node<T> insert(T payload) {
+        return insert(payload, this.root, 0);
+    }
 
-            if (payload.compareTo(current.payload) < 0) {
-                if (current.left == null) {
-                    current.left = new Node<>(payload, null, null);
-                    out.printf("Adding %s to the left of %s at level %d\n", payload.toString(), current.payload.toString(), depth);
-                    return current.left;
-                } else {
-                    out.println("Traversing left");
-                    current = current.left;
-                    depth++;
-                    continue;
-                }
-            }
-
-            if (payload.compareTo(current.payload) > 0) {
-                if (current.right == null) {
-                    current.right = new Node<>(payload, null, null);
-                    out.printf("Adding %s to the right of %s at level %d\n", payload.toString(), current.payload.toString(), depth);
-                    return current.left;
-                } else {
-                    out.println("Traversing right");
-                    current = current.right;
-                    depth++;
-                    continue;
-                }
-            }
-
-           break;
+    protected Node<T> insert(T payload, Node<T> current, int depth) {
+        // Add at level 0 (root)
+        if (current == null) {
+            this.root = new Node<>(payload, null, null, null);
+            return this.root;
         }
-        return current;
+
+        if (payload.compareTo(current.payload) < 0) {
+            if (current.left == null) {
+                // Add to the left
+                current.left = new Node<>(payload, null, null, current);
+                return current.left;
+            } else {
+                // Traverse left
+                return insert(payload, current.left, ++depth);
+            }
+        } else {
+            // Add to the right
+            if (current.right == null) {
+                current.right = new Node<>(payload, null, null, current);
+                return current.left;
+            } else {
+                // Traverse right
+                return insert(payload, current.right, ++depth);
+            }
+        }
+    }
+
+    protected Node<T> scanAscend() {
+        Set<Node<T>> visited = new HashSet<>();
+        return scanAscend(this.root, visited);
+    }
+
+    protected Node<T> scanAscend (Node<T> current, Set<Node<T>> visited) {
+        if (current == null) {
+            return null;
+        }
+
+        if (current.left != null && !visited.contains(current.left)) {
+            return scanAscend(current.left, visited);
+        }
+
+        if (current.right != null && !visited.contains(current.right)) {
+            out.println(current.payload);
+            visited.add(current);
+            return scanAscend(current.right, visited);
+        }
+
+        if (!visited.contains(current)) {
+            out.println(current.payload);
+            visited.add(current);
+        }
+
+        return scanAscend(current.parent, visited);
     }
 }

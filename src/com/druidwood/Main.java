@@ -9,15 +9,11 @@ public class Main {
         // Create some items for the binary tree
         Random rand = new Random();
 
-        BinaryTree binaryTree = new BinaryTree(new Payload(500));
+        BinaryTree<Payload> binaryTree = new <Payload>BinaryTree();
 
-         IntStream.range(0, 10)
+         IntStream.range(0, 50)
             .forEach(index -> binaryTree.insert(new Payload(rand.nextInt(1000))));
 
-//        binaryTree.insert(new Payload(300));
-//        binaryTree.insert(new Payload(400));
-//        binaryTree.insert(new Payload(350));
-//        //binaryTree.insert(new Payload(650));
-//        //binaryTree.insert(new Payload(675));
+        binaryTree.scanAscend();
     }
 }
